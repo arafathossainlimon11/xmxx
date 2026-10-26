@@ -2,16 +2,11 @@
    XMXX - Ultra Professional Core Engine & API Integration
    ========================================================================== */
 
-// ১. API Configuration (এখানে আপনার API Host, Key এবং Endpoint বসাবেন)
+// ১. API Configuration
 const API_CONFIG = {
-  // আপনার RapidAPI Host নিচে কোটেশনের ভেতর বসান
   HOST: 'porn-xnxx-api.p.rapidapi.com',
-  
-  // আপনার RapidAPI Key নিচে কোটেশনের ভেতর বসান
   KEY: '677f6077f6msh81af4e26e4f5359p1e9f7djsna06f2cb6db3b',
-  
-  // এপিআই-এর মেইন ইউআরএল বা এন্ডপয়েন্ট
-  BASE_URL: 'https://porn-xnxx-api.p.rapidapi.com/search' 
+  BASE_URL: 'https://porn-xnxx-api.p.rapidapi.com/search'
 };
 
 // DOM Elements Selection
@@ -35,10 +30,10 @@ let mediaData = [];
 // App Initialization
 document.addEventListener('DOMContentLoaded', () => {
   renderSkeletonLoaders();
-  fetchMediaData('all');
+  fetchMediaData('trending');
 });
 
-// 2. Render Skeleton Loaders (পেজ লোড হওয়ার সময় স্কেলিটন ইফেক্ট)
+// ২. Render Skeleton Loaders (লোডিং অ্যানিমেশন)
 function renderSkeletonLoaders(count = 8) {
   videoGrid.innerHTML = '';
   for (let i = 0; i < count; i++) {
@@ -53,35 +48,46 @@ function renderSkeletonLoaders(count = 8) {
   }
 }
 
-// 3. Fetch Data from API
-async function fetchMediaData(query = '') {
-  // যদি এপিআই কি/হোস্ট বসানো না থাকে, তবে ডেমো কার্ড শো করবে যেন ইউআই টেস্ট করা যায়
-  if (API_CONFIG.KEY === 'YOUR_RAPIDAPI_KEY_HERE') {
-    console.warn('RapidAPI Key is missing! Showing Fallback UI.');
-    setTimeout(() => {
-      loadFallbackData();
-    }, 1000);
-    return;
-  }
+// ৩. Category Keyword Mapping
+function getSearchKeyword(category) {
+  const map = {
+    'all': 'trending',
+    'popular': 'popular',
+    'latest': 'new',
+    'top_rated': 'best',
+    'hd': 'hd'
+  };
+  return map[category] || category || 'trending';
+}
+
+// ৪. Fetch Data from API (POST Method for porn-xnxx-api)
+async function fetchMediaData(query = 'trending') {
+  const searchTerm = getSearchKeyword(query);
 
   const options = {
-    method: 'GET',
+    method: 'POST',
     headers: {
+      'Content-Type': 'application/json',
       'x-rapidapi-host': API_CONFIG.HOST,
       'x-rapidapi-key': API_CONFIG.KEY
-    }
+    },
+    body: JSON.stringify({
+      q: searchTerm,
+      page: 1
+    })
   };
 
   try {
-    const url = query && query !== 'all' 
-      ? `${API_CONFIG.BASE_URL}?q=${encodeURIComponent(query)}`
-      : API_CONFIG.BASE_URL;
-
-    const response = await fetch(url, options);
+    const response = await fetch(API_CONFIG.BASE_URL, options);
+    if (!response.ok) {
+      throw new Error(`API Error Status: ${response.status}`);
+    }
     const result = await response.json();
 
-    // API-এর রেসপন্স স্ট্রাকচার অনুযায়ী ডেটা পার্সিং (Array/Object Handling)
-    mediaData = Array.isArray(result) ? result : (result.data || result.results || []);
+    // API-এর সম্ভাব্য বিভিন্ন রেসপন্স কি (Key) হ্যান্ডলিং
+    mediaData = Array.isArray(result) 
+      ? result 
+      : (result.result || result.results || result.videos || result.data || []);
     
     if (mediaData.length > 0) {
       renderCards(mediaData);
@@ -95,18 +101,17 @@ async function fetchMediaData(query = '') {
   }
 }
 
-// 4. Render Media Cards in Grid
+// ৫. Render Media Cards in Grid
 function renderCards(items) {
   videoGrid.innerHTML = '';
   resultCount.textContent = `Showing ${items.length} items`;
 
   items.forEach((item, index) => {
-    // API রেসপন্স থেকে ডাইনামিক ফিল্ড এক্সট্র্যাক্ট করা
     const title = item.title || item.name || `Ultra HD Media #${index + 1}`;
-    const thumbnail = item.thumbnail || item.image || item.url || 'https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Media';
-    const duration = item.duration || 'HD 4K';
-    const views = item.views ? `${item.views} Views` : '100% Quality';
-    const mediaUrl = item.video_url || item.embed_url || item.url || thumbnail;
+    const thumbnail = item.thumbnail || item.thumb || item.image || item.url || 'https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Media';
+    const duration = item.duration || item.time || 'HD 4K';
+    const views = item.views || item.view_count || item.viewCount || 'Popular';
+    const mediaUrl = item.link || item.url || item.video_url || item.embed_url || thumbnail;
 
     const cardElement = document.createElement('div');
     cardElement.className = 'media-card';
@@ -124,7 +129,6 @@ function renderCards(items) {
       </div>
     `;
 
-    // কার্ডে ক্লিক করলে মডাল প্লেয়ার ওপেন হবে
     cardElement.addEventListener('click', () => {
       openModal(title, mediaUrl, views);
     });
@@ -133,32 +137,18 @@ function renderCards(items) {
   });
 }
 
-// 5. Fallback Demo Data (এপিআই কানেক্ট করার আগের টেস্ট ডেটা)
-function loadFallbackData() {
-  const demoItems = Array.from({ length: 12 }, (_, i) => ({
-    title: `XMXX Dynamic Stream Media Content - Sample Release #${i + 1}`,
-    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop',
-    duration: `${Math.floor(Math.random() * 15) + 5}:${Math.floor(Math.random() * 50) + 10}`,
-    views: `${(Math.random() * 500).toFixed(1)}K`,
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop'
-  }));
-
-  mediaData = demoItems;
-  renderCards(demoItems);
-}
-
-// 6. Modal Functions (Video / Image Player Window)
+// ৬. Modal Functions (Video Player Window)
 function openModal(title, url, views) {
   modalTitle.textContent = title;
   modalViews.innerHTML = `<i class="fa-solid fa-eye"></i> ${views}`;
 
-  // যদি প্লেয়ারের ইউআরএল <iframe> ফ্রেন্ডলি হয় বা ছবি হয়
   if (url.includes('embed') || url.includes('iframe')) {
     playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen frameborder="0"></iframe>`;
   } else if (url.match(/\.(mp4|webm|ogg)$/i)) {
     playerContainer.innerHTML = `<video src="${url}" controls autoplay loop style="width:100%; height:100%;"></video>`;
+  } else if (url.includes('http')) {
+    playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen frameborder="0" style="width:100%; height:100%;"></iframe>`;
   } else {
-    // পিকচার বা ইমেজ API হলে ইমেজ ভিউয়ার ওপেন হবে
     playerContainer.innerHTML = `<img src="${url}" alt="${title}" style="width:100%; height:100%; object-fit:contain;">`;
   }
 
@@ -177,7 +167,7 @@ videoModal.addEventListener('click', (e) => {
   if (e.target === videoModal) closeModal();
 });
 
-// 7. Search & Category Event Handlers
+// ৭. Search & Category Event Handlers
 function handleSearch() {
   const query = searchInput.value.trim();
   if (query) {
@@ -214,4 +204,4 @@ function showEmptyState(message) {
     </div>
   `;
   resultCount.textContent = '0 items found';
-     }
+  }

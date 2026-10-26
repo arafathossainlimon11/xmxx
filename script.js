@@ -8,10 +8,10 @@ const API_CONFIG = {
   HOST: 'YOUR_RAPIDAPI_HOST_HERE',
   
   // আপনার RapidAPI Key নিচে কোটেশনের ভেতর বসান
-  KEY: 'YOUR_RAPIDAPI_KEY_HERE',
+  KEY: '677f6077f6msh81af4e26e4f5359p1e9f7djsna06f2cb6db3b',
   
   // এপিআই-এর মেইন ইউআরএল বা এন্ডপয়েন্ট
-  BASE_URL: 'https://YOUR_RAPIDAPI_HOST_HERE/search' 
+  BASE_URL: 'porn-xnxx-api.p.rapidapi.com' 
 };
 
 // DOM Elements Selection

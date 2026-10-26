@@ -1,5 +1,5 @@
 /* ==========================================================================
-   XMXX - Ultra Professional Core Engine & API Integration
+   XMXX - Ultra Professional Core Engine & Video Player Integration
    ========================================================================== */
 
 // ১. API Configuration
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchMediaData('trending');
 });
 
-// ২. Render Skeleton Loaders (লোডিং অ্যানিমেশন)
+// ২. Render Skeleton Loaders
 function renderSkeletonLoaders(count = 8) {
   videoGrid.innerHTML = '';
   for (let i = 0; i < count; i++) {
@@ -48,7 +48,7 @@ function renderSkeletonLoaders(count = 8) {
   }
 }
 
-// ৩. Category Keyword Mapping
+// ৩. Category Mapping
 function getSearchKeyword(category) {
   const map = {
     'all': 'trending',
@@ -60,7 +60,7 @@ function getSearchKeyword(category) {
   return map[category] || category || 'trending';
 }
 
-// ৪. Fetch Data from API (POST Method for porn-xnxx-api)
+// ৪. Fetch Data from API
 async function fetchMediaData(query = 'trending') {
   const searchTerm = getSearchKeyword(query);
 
@@ -84,7 +84,6 @@ async function fetchMediaData(query = 'trending') {
     }
     const result = await response.json();
 
-    // API-এর সম্ভাব্য বিভিন্ন রেসপন্স কি (Key) হ্যান্ডলিং
     mediaData = Array.isArray(result) 
       ? result 
       : (result.result || result.results || result.videos || result.data || []);
@@ -101,23 +100,25 @@ async function fetchMediaData(query = 'trending') {
   }
 }
 
-// ৫. Render Media Cards in Grid
+// ৫. Render Cards
 function renderCards(items) {
   videoGrid.innerHTML = '';
   resultCount.textContent = `Showing ${items.length} items`;
 
   items.forEach((item, index) => {
-    const title = item.title || item.name || `Ultra HD Media #${index + 1}`;
-    const thumbnail = item.thumbnail || item.thumb || item.image || item.url || 'https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Media';
-    const duration = item.duration || item.time || 'HD 4K';
-    const views = item.views || item.view_count || item.viewCount || 'Popular';
-    const mediaUrl = item.link || item.url || item.video_url || item.embed_url || thumbnail;
+    const title = item.title || item.name || `Ultra HD Video #${index + 1}`;
+    const thumbnail = item.thumbnail || item.thumb || item.image || 'https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Media';
+    const duration = item.duration || item.time || '1080p Full HD';
+    const views = item.views || item.view_count || '100% HD';
+    
+    // Video Link Parsing
+    const videoLink = item.link || item.url || item.video_url || item.embed_url || '';
 
     const cardElement = document.createElement('div');
     cardElement.className = 'media-card';
     cardElement.innerHTML = `
       <div class="thumbnail-box">
-        <img src="${thumbnail}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Media'">
+        <img src="${thumbnail}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x338/1c2128/ff0055?text=XMXX+Video'">
         <span class="duration-tag">${duration}</span>
       </div>
       <div class="card-info">
@@ -130,27 +131,44 @@ function renderCards(items) {
     `;
 
     cardElement.addEventListener('click', () => {
-      openModal(title, mediaUrl, views);
+      openModal(title, videoLink, thumbnail, views);
     });
 
     videoGrid.appendChild(cardElement);
   });
 }
 
-// ৬. Modal Functions (Video Player Window)
-function openModal(title, url, views) {
+// ৬. Ultra Professional Video Player Modal
+function openModal(title, videoUrl, thumbnailUrl, views) {
   modalTitle.textContent = title;
   modalViews.innerHTML = `<i class="fa-solid fa-eye"></i> ${views}`;
 
-  if (url.includes('embed') || url.includes('iframe')) {
-    playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen frameborder="0"></iframe>`;
-  } else if (url.match(/\.(mp4|webm|ogg)$/i)) {
-    playerContainer.innerHTML = `<video src="${url}" controls autoplay loop style="width:100%; height:100%;"></video>`;
-  } else if (url.includes('http')) {
-    playerContainer.innerHTML = `<iframe src="${url}" allowfullscreen frameborder="0" style="width:100%; height:100%;"></iframe>`;
-  } else {
-    playerContainer.innerHTML = `<img src="${url}" alt="${title}" style="width:100%; height:100%; object-fit:contain;">`;
-  }
+  // প্লেয়ারের ভেতরে প্রফেশনাল ভিডিও প্লে ওভারলে ও প্লে বাটন তৈরি
+  playerContainer.innerHTML = `
+    <div style="position: relative; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center;">
+      <img src="${thumbnailUrl}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.5; filter: blur(2px);" />
+      
+      <div style="position: absolute; text-align: center; z-index: 5; padding: 20px;">
+        <a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          background: #ff0055;
+          color: #ffffff;
+          padding: 16px 32px;
+          border-radius: 50px;
+          font-size: 18px;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 0 30px rgba(255, 0, 85, 0.6);
+          transition: transform 0.2s ease;
+        " onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+          <i class="fa-solid fa-play" style="font-size: 22px;"></i> WATCH / PLAY VIDEO NOW
+        </a>
+        <p style="color: #8b949e; font-size: 12px; margin-top: 14px;">Click above to stream this 4K video directly</p>
+      </div>
+    </div>
+  `;
 
   videoModal.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -167,7 +185,7 @@ videoModal.addEventListener('click', (e) => {
   if (e.target === videoModal) closeModal();
 });
 
-// ৭. Search & Category Event Handlers
+// ৭. Search & Category Handlers
 function handleSearch() {
   const query = searchInput.value.trim();
   if (query) {
@@ -182,7 +200,6 @@ searchInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') handleSearch();
 });
 
-// Category Pills Filter Action
 categoryPills.forEach(pill => {
   pill.addEventListener('click', () => {
     categoryPills.forEach(p => p.classList.remove('active'));
@@ -195,7 +212,6 @@ categoryPills.forEach(pill => {
   });
 });
 
-// Empty State Display
 function showEmptyState(message) {
   videoGrid.innerHTML = `
     <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
@@ -204,4 +220,4 @@ function showEmptyState(message) {
     </div>
   `;
   resultCount.textContent = '0 items found';
-  }
+                  }

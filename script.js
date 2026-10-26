@@ -5,13 +5,13 @@
 // ১. API Configuration (এখানে আপনার API Host, Key এবং Endpoint বসাবেন)
 const API_CONFIG = {
   // আপনার RapidAPI Host নিচে কোটেশনের ভেতর বসান
-  HOST: 'YOUR_RAPIDAPI_HOST_HERE',
+  HOST: 'porn-xnxx-api.p.rapidapi.com',
   
   // আপনার RapidAPI Key নিচে কোটেশনের ভেতর বসান
   KEY: '677f6077f6msh81af4e26e4f5359p1e9f7djsna06f2cb6db3b',
   
   // এপিআই-এর মেইন ইউআরএল বা এন্ডপয়েন্ট
-  BASE_URL: 'porn-xnxx-api.p.rapidapi.com' 
+  BASE_URL: 'https://YOUR_RAPIDAPI_HOST_HERE/search' 
 };
 
 // DOM Elements Selection
@@ -214,4 +214,4 @@ function showEmptyState(message) {
     </div>
   `;
   resultCount.textContent = '0 items found';
-}
+     }

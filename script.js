@@ -4,9 +4,9 @@
 
 // ১. API Configuration
 const API_CONFIG = {
-  HOST: 'porn-xnxx-api.p.rapidapi.com',
+  HOST: 'porn-detection-api.p.rapidapi.com',
   KEY: '677f6077f6msh81af4e26e4f5359p1e9f7djsna06f2cb6db3b',
-  BASE_URL: 'https://porn-xnxx-api.p.rapidapi.com/search'
+  BASE_URL: 'https://porn-detection-api.p.rapidapi.com/predict_image_url'
 };
 
 // DOM Elements Selection

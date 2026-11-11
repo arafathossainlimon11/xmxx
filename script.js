@@ -5,7 +5,7 @@
 // ১. API Configuration
 const API_CONFIG = {
   HOST: 'porn-detection-api.p.rapidapi.com',
-  KEY: '677f6077f6msh81af4e26e4f5359p1e9f7djsna06f2cb6db3b',
+  KEY: '<iframe src="https://www.xnxx.com/embedframe/ookbeep6b00" frameborder=0 width=510 height=400 scrolling=no allowfullscreen=allowfullscreen></iframe>',
   BASE_URL: 'https://porn-detection-api.p.rapidapi.com/predict_image_url'
 };
 
